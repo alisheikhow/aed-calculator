@@ -3,44 +3,47 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Калькулятор цены → AED</title>
-  <meta name="theme-color" content="#0f172a">
+  <title>Aradesh — Калькулятор цены → AED</title>
+  <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="AED Calc">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Aradesh">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <style>
     :root{
-      --bg:#0f172a;
-      --card:#111827;
-      --muted:#9ca3af;
-      --text:#f9fafb;
-      --accent:#22c55e;
-      --accent-2:#60a5fa;
-      --border:#1f2937;
+      --bg:#ffffff;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --text:#0f172a;
+      --accent:#904D30;
+      --accent-2:#B07052;
+      --border:#e5e7eb;
       --danger:#ef4444;
+      --input:#f8fafc;
+      --shadow: 0 10px 30px rgba(17,24,39,.06);
     }
     *{box-sizing:border-box}
     body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);}
-    .wrap{max-width:860px;margin:32px auto;padding:0 20px;}
-    header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
-    .logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;font-weight:800;color:#062;mix-blend:screen}
+    .wrap{max-width:920px;margin:32px auto;padding:0 20px;}
+    header{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+    .logo{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;font-weight:800;color:#fff;letter-spacing:.04em}
     h1{font-size:24px;margin:0}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.25);}
+    .brand{font-size:12px;color:var(--muted)}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow);}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
     .full{grid-column:1/-1}
     label{font-size:14px;color:var(--muted);display:block;margin-bottom:6px}
-    input,select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:#0b1220;color:var(--text);outline:none}
-    input::placeholder{color:#64748b}
+    input,select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:var(--input);color:var(--text);outline:none}
+    input::placeholder{color:#9aa3b2}
     .row{display:flex;gap:12px;flex-wrap:wrap}
-    button{padding:12px 16px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(180deg,#1f2937,#111827);color:var(--text);cursor:pointer}
-    button.primary{background:linear-gradient(180deg,#10b981,#059669);border-color:#047857}
+    button{padding:12px 16px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(180deg,#fafafa,#f0f2f5);color:var(--text);cursor:pointer}
+    button.primary{background:linear-gradient(180deg,var(--accent),#7e442b);border-color:#7e442b;color:#fff}
     button:disabled{opacity:.6;cursor:not-allowed}
     .result{margin-top:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-    .tile{background:#0b1220;border:1px solid var(--border);border-radius:14px;padding:16px}
+    .tile{background:var(--input);border:1px solid var(--border);border-radius:14px;padding:16px}
     .tile .h{font-size:12px;letter-spacing:.05em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
-    .tile .v{font-weight:800;font-size:22px}
+    .tile .v{font-weight:800;font-size:24px}
     .muted{color:var(--muted)}
     .help{margin-top:10px;color:var(--muted);font-size:12px}
     .error{color:var(--danger);font-size:14px;margin-top:8px}
@@ -49,14 +52,17 @@
       .grid{grid-template-columns:1fr}
       .result{grid-template-columns:1fr}
     }
+    .foot{margin-top:18px;font-size:12px;color:var(--muted);}
+    .accent{color:var(--accent);font-weight:700}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <div class="logo">AED</div>
+      <div class="logo">A</div>
       <div>
         <h1>Калькулятор цены → AED</h1>
+        <div class="brand">Aradesh</div>
         <div class="k-note">Вводи <b>курс AED→RUB</b> (сколько ₽ за 1 AED). Поля запоминаются.</div>
       </div>
     </header>
@@ -68,8 +74,8 @@
           <input id="priceRub" type="number" inputmode="decimal" placeholder="Напр. 1200" />
         </div>
         <div>
-          <label>Вес (кг)</label>
-          <input id="weightKg" type="number" inputmode="decimal" step="0.01" placeholder="Напр. 1.25" />
+          <label>Вес (в граммах)</label>
+          <input id="weightGr" type="number" inputmode="decimal" step="1" placeholder="Напр. 750" />
         </div>
         <div>
           <label>Курс AED→RUB (₽ за 1 AED)</label>
@@ -83,7 +89,7 @@
           <div class="row">
             <button class="primary" id="calcBtn">Рассчитать</button>
             <button id="clearBtn">Очистить</button>
-            <div class="help">Логистика считается как <b>20 AED/кг</b>. Цена = Себестоимость × коэффициент категории.</div>
+            <div class="help">Логистика считается как <b>20 AED/кг</b>. При вводе веса в граммах логистика = <i>(граммы ÷ 1000) × 20</i>.</div>
           </div>
           <div class="error" id="error"></div>
         </div>
@@ -106,6 +112,7 @@
           <div class="muted" id="marginMeta"></div>
         </div>
       </div>
+      <div class="foot">Брендинг: <span class="accent">Aradesh</span></div>
     </div>
   </div>
 
@@ -136,7 +143,7 @@
     // UI refs
     const el = (id) => document.getElementById(id);
     const priceRub = el('priceRub');
-    const weightKg = el('weightKg');
+    const weightGr = el('weightGr');
     const rateAedRub = el('rateAedRub');
     const category = el('category');
     const calcBtn = el('calcBtn');
@@ -161,7 +168,7 @@
     })();
 
     // Load saved values
-    [priceRub, weightKg, rateAedRub].forEach(inp => {
+    [priceRub, weightGr, rateAedRub].forEach(inp => {
       const v = localStorage.getItem(inp.id);
       if (v !== null) inp.value = v;
       inp.addEventListener('input', () => localStorage.setItem(inp.id, inp.value));
@@ -172,13 +179,13 @@
     const fmt = (n) => isFinite(n) ? `${Number(n).toFixed(2)} AED` : '—';
     const validate = () => {
       errorBox.textContent = '';
-      if (!priceRub.value || !weightKg.value || !rateAedRub.value) {
+      if (!priceRub.value || !weightGr.value || !rateAedRub.value) {
         errorBox.textContent = '⚠️ Заполни все поля.'; return false;
       }
       const pr = parseFloat(priceRub.value);
-      const w = parseFloat(weightKg.value);
+      const g = parseFloat(weightGr.value);
       const r = parseFloat(rateAedRub.value);
-      if ([pr,w,r].some(x => isNaN(x)) || r <= 0 || w < 0 || pr < 0) {
+      if ([pr,g,r].some(x => isNaN(x)) || r <= 0 || g < 0 || pr < 0) {
         errorBox.textContent = '⚠️ Проверь корректность значений.'; return false;
       }
       return true;
@@ -187,13 +194,14 @@
     function calculate() {
       if (!validate()) return;
       const pr = parseFloat(priceRub.value);
-      const w = parseFloat(weightKg.value);
+      const g = parseFloat(weightGr.value);
       const r = parseFloat(rateAedRub.value);
       const k = coefficients[category.value];
 
       // ₽ → AED через курс AED→RUB (₽ за 1 AED)
       const purchaseAED = pr / r;
-      const logisticsAED = w * 20;
+      const kg = g / 1000;
+      const logisticsAED = kg * 20;
       const costAED = purchaseAED + logisticsAED;
       const priceAED = costAED * k;
       const marginAED = priceAED - costAED;
@@ -210,13 +218,13 @@
     // Events
     calcBtn.addEventListener('click', calculate);
     clearBtn.addEventListener('click', () => {
-      [priceRub, weightKg, rateAedRub].forEach(inp => { inp.value=''; localStorage.removeItem(inp.id); });
+      [priceRub, weightGr, rateAedRub].forEach(inp => { inp.value=''; localStorage.removeItem(inp.id); });
       errorBox.textContent='';
       [cost, price, margin].forEach(e => e.textContent='—');
       [costMeta, priceMeta, marginMeta].forEach(e => e.textContent='');
     });
     document.addEventListener('keydown', (e) => { if (e.key === 'Enter') calculate(); });
-    
+
     // Register service worker (for offline)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
