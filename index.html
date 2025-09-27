@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Калькулятор цены → AED</title>
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AED Calc">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <style>
+    :root{
+      --bg:#0f172a;
+      --card:#111827;
+      --muted:#9ca3af;
+      --text:#f9fafb;
+      --accent:#22c55e;
+      --accent-2:#60a5fa;
+      --border:#1f2937;
+      --danger:#ef4444;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);}
+    .wrap{max-width:860px;margin:32px auto;padding:0 20px;}
+    header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+    .logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;font-weight:800;color:#062;mix-blend:screen}
+    h1{font-size:24px;margin:0}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.25);}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .full{grid-column:1/-1}
+    label{font-size:14px;color:var(--muted);display:block;margin-bottom:6px}
+    input,select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:#0b1220;color:var(--text);outline:none}
+    input::placeholder{color:#64748b}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    button{padding:12px 16px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(180deg,#1f2937,#111827);color:var(--text);cursor:pointer}
+    button.primary{background:linear-gradient(180deg,#10b981,#059669);border-color:#047857}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    .result{margin-top:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    .tile{background:#0b1220;border:1px solid var(--border);border-radius:14px;padding:16px}
+    .tile .h{font-size:12px;letter-spacing:.05em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+    .tile .v{font-weight:800;font-size:22px}
+    .muted{color:var(--muted)}
+    .help{margin-top:10px;color:var(--muted);font-size:12px}
+    .error{color:var(--danger);font-size:14px;margin-top:8px}
+    .k-note{font-size:12px;color:var(--muted)}
+    @media (max-width:720px){
+      .grid{grid-template-columns:1fr}
+      .result{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">AED</div>
+      <div>
+        <h1>Калькулятор цены → AED</h1>
+        <div class="k-note">Вводи <b>курс AED→RUB</b> (сколько ₽ за 1 AED). Поля запоминаются.</div>
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="grid">
+        <div>
+          <label>Цена закупа (₽)</label>
+          <input id="priceRub" type="number" inputmode="decimal" placeholder="Напр. 1200" />
+        </div>
+        <div>
+          <label>Вес (кг)</label>
+          <input id="weightKg" type="number" inputmode="decimal" step="0.01" placeholder="Напр. 1.25" />
+        </div>
+        <div>
+          <label>Курс AED→RUB (₽ за 1 AED)</label>
+          <input id="rateAedRub" type="number" inputmode="decimal" step="0.0001" placeholder="Напр. 32.5" />
+        </div>
+        <div>
+          <label>Категория (коэфф.)</label>
+          <select id="category"></select>
+        </div>
+        <div class="full">
+          <div class="row">
+            <button class="primary" id="calcBtn">Рассчитать</button>
+            <button id="clearBtn">Очистить</button>
+            <div class="help">Логистика считается как <b>20 AED/кг</b>. Цена = Себестоимость × коэффициент категории.</div>
+          </div>
+          <div class="error" id="error"></div>
+        </div>
+      </div>
+
+      <div class="result" id="result">
+        <div class="tile">
+          <div class="h">Себестоимость</div>
+          <div class="v" id="cost">—</div>
+          <div class="muted" id="costMeta"></div>
+        </div>
+        <div class="tile">
+          <div class="h">Цена</div>
+          <div class="v" id="price">—</div>
+          <div class="muted" id="priceMeta"></div>
+        </div>
+        <div class="tile">
+          <div class="h">Маржа</div>
+          <div class="v" id="margin">—</div>
+          <div class="muted" id="marginMeta"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Категории и коэффициенты
+    const coefficients = {
+      "Полуфабрикаты домашние": 2.5,
+      "Мясо домашнее": 1.9,
+      "Молочка домашняя": 3.0,
+      "Сыры домашние": 2.9,
+      "Колбасы домашние": 2.3,
+      "Соусы/специи домашние": 2.3,
+      "Овощи/зелень домашние": 2.2,
+      "Фрукты/ягоды домашние": 2.2,
+      "Хлеб/зерновые домашние": 2.3,
+      "Полуфабрикаты брендовые": 2.1,
+      "Мясо брендовое": 1.8,
+      "Молочка брендовая": 2.0,
+      "Сыры брендовые": 2.1,
+      "Колбасы брендовые": 2.1,
+      "Соусы/специи брендовые": 2.0,
+      "Овощи брендовые": 1.8,
+      "Фрукты брендовые": 1.7,
+      "Хлеб/зерновые брендовые": 2.0,
+      "Напитки брендовые": 1.9
+    };
+
+    // UI refs
+    const el = (id) => document.getElementById(id);
+    const priceRub = el('priceRub');
+    const weightKg = el('weightKg');
+    const rateAedRub = el('rateAedRub');
+    const category = el('category');
+    const calcBtn = el('calcBtn');
+    const clearBtn = el('clearBtn');
+    const errorBox = el('error');
+    const cost = el('cost');
+    const costMeta = el('costMeta');
+    const price = el('price');
+    const priceMeta = el('priceMeta');
+    const margin = el('margin');
+    const marginMeta = el('marginMeta');
+
+    // Fill categories
+    (() => {
+      for (const [name, k] of Object.entries(coefficients)) {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = `${name} — ${k}`;
+        category.appendChild(opt);
+      }
+      category.value = localStorage.getItem('category') || "Полуфабрикаты домашние";
+    })();
+
+    // Load saved values
+    [priceRub, weightKg, rateAedRub].forEach(inp => {
+      const v = localStorage.getItem(inp.id);
+      if (v !== null) inp.value = v;
+      inp.addEventListener('input', () => localStorage.setItem(inp.id, inp.value));
+    });
+    category.addEventListener('change', () => localStorage.setItem('category', category.value));
+
+    // Helpers
+    const fmt = (n) => isFinite(n) ? `${Number(n).toFixed(2)} AED` : '—';
+    const validate = () => {
+      errorBox.textContent = '';
+      if (!priceRub.value || !weightKg.value || !rateAedRub.value) {
+        errorBox.textContent = '⚠️ Заполни все поля.'; return false;
+      }
+      const pr = parseFloat(priceRub.value);
+      const w = parseFloat(weightKg.value);
+      const r = parseFloat(rateAedRub.value);
+      if ([pr,w,r].some(x => isNaN(x)) || r <= 0 || w < 0 || pr < 0) {
+        errorBox.textContent = '⚠️ Проверь корректность значений.'; return false;
+      }
+      return true;
+    };
+
+    function calculate() {
+      if (!validate()) return;
+      const pr = parseFloat(priceRub.value);
+      const w = parseFloat(weightKg.value);
+      const r = parseFloat(rateAedRub.value);
+      const k = coefficients[category.value];
+
+      // ₽ → AED через курс AED→RUB (₽ за 1 AED)
+      const purchaseAED = pr / r;
+      const logisticsAED = w * 20;
+      const costAED = purchaseAED + logisticsAED;
+      const priceAED = costAED * k;
+      const marginAED = priceAED - costAED;
+      const marginPct = priceAED ? (marginAED / priceAED) * 100 : 0;
+
+      cost.textContent = fmt(costAED);
+      price.textContent = fmt(priceAED);
+      margin.textContent = fmt(marginAED);
+      costMeta.textContent = `Закуп ${purchaseAED.toFixed(2)} + Логистика ${logisticsAED.toFixed(2)} (AED)`;
+      priceMeta.textContent = `Коэфф. ${k} (${category.value})`;
+      marginMeta.textContent = `≈ ${marginPct.toFixed(1)}% от цены`;
+    }
+
+    // Events
+    calcBtn.addEventListener('click', calculate);
+    clearBtn.addEventListener('click', () => {
+      [priceRub, weightKg, rateAedRub].forEach(inp => { inp.value=''; localStorage.removeItem(inp.id); });
+      errorBox.textContent='';
+      [cost, price, margin].forEach(e => e.textContent='—');
+      [costMeta, priceMeta, marginMeta].forEach(e => e.textContent='');
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Enter') calculate(); });
+    
+    // Register service worker (for offline)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js');
+      });
+    }
+  </script>
+</body>
+</html>
